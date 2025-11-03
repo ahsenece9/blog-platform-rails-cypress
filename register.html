@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kayıt - Rails API</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 450px;
+            width: 100%;
+            animation: slideUp 0.5s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 { 
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        input { 
+            width: 100%;
+            padding: 15px;
+            margin: 12px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button { 
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .message { 
+            padding: 15px;
+            background: #4CAF50;
+            color: white;
+            margin: 15px 0;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .error { background: #f44336; }
+        
+        .icon {
+            text-align: center;
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📝</div>
+        <h1>Hoş Geldiniz!</h1>
+        <p class="subtitle">Blog platformuna katılmak için kayıt olun</p>
+        
+        <form id="registerForm">
+            <input type="text" name="isim" placeholder="👤 İsim" required>
+            <input type="email" name="email" placeholder="📧 Email" required>
+            <button type="submit">Kayıt Ol</button>
+        </form>
+        
+        <div id="message" style="display:none;" class="message"></div>
+    </div>
+
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.querySelector('input[name="isim"]').value;
+            const email = document.querySelector('input[name="email"]').value;
+            
+            fetch('http://localhost:3000/api/users', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    user: {
+                        name: name,
+                        email: email
+                    }
+                })
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Kayıt başarısız');
+                return response.json();
+            })
+            .then(data => {
+                localStorage.setItem('currentUserId', data.id);
+                localStorage.setItem('currentUserName', data.name);
+                
+                document.getElementById('message').textContent = 'Kayıt başarılı';
+                document.getElementById('message').className = 'message';
+                document.getElementById('message').style.display = 'block';
+                
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            })
+            .catch(error => {
+                document.getElementById('message').textContent = 'Hata: ' + error.message;
+                document.getElementById('message').className = 'message error';
+                document.getElementById('message').style.display = 'block';
+            });
+        });
+    </script>
+</body>
+</html>
